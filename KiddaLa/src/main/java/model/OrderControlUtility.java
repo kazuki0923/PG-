@@ -18,15 +18,14 @@ public class OrderControlUtility {
             return new String[0][0];
         }
 
-        String[][] tableData = new String[list.size()][5];
+        String[][] tableData = new String[list.size()][4];
 
         for (int i = 0; i < list.size(); i++) {
             Customer c = list.get(i);
-            tableData[i][0] = c.getCustId();
+            tableData[i][0] = String.valueOf(c.getCustId());
             tableData[i][1] = c.getCustName();
             tableData[i][2] = c.getKana();
-            tableData[i][3] = c.getTel();
-            tableData[i][4] = c.getAddress();
+            tableData[i][3] = c.getAddress();
         }
 
         return tableData;
@@ -71,11 +70,9 @@ public class OrderControlUtility {
     public static String getDate() {
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
-        // Calendar.MONTHは0から始まるため+1する
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DATE);
 
-        // 1桁の月・日を「09」のように2桁にする場合は調整、仕様書の表記通り「-」で連結します
-        return year + "-" + String.format("%02d", month) + "-" + String.format("%02d", day);
+        return year + "-" + month + "-" + day;
     }
 }

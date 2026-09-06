@@ -56,7 +56,7 @@ public class CustomerSearchDBAccess {
 
             while (rs.next()) {
                 Customer customer = new Customer(
-                    rs.getString("CUSTID"),
+                    rs.getInt("CUSTID"),
                     rs.getString("CUSTNAME"),
                     rs.getString("KANA"),
                     rs.getString("TEL"),
@@ -92,7 +92,7 @@ public class CustomerSearchDBAccess {
 
             while (rs.next()) {
                 Customer customer = new Customer(
-                    rs.getString("CUSTID"),
+                    rs.getInt("CUSTID"),
                     rs.getString("CUSTNAME"),
                     rs.getString("KANA"),
                     rs.getString("TEL"),
@@ -129,7 +129,7 @@ public class CustomerSearchDBAccess {
 
             while (rs.next()) {
                 Customer customer = new Customer(
-                    rs.getString("CUSTID"),
+                    rs.getInt("CUSTID"),
                     rs.getString("CUSTNAME"),
                     rs.getString("KANA"),
                     rs.getString("TEL"),

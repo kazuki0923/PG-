@@ -7,49 +7,151 @@ import model.Customer;
 
 public class CustomerSearchDBAccessTest {
 
+    private static int okCount = 0;
+    private static int ngCount = 0;
+
     public static void main(String[] args) {
+
+        CustomerSearchDBAccess dao =
+                new CustomerSearchDBAccess();
+
+        executeTest(
+                "1. TEL正常",
+                () -> dao.searchCustomerByTel(
+                        "09012345678"),
+                1
+        );
+
+        executeTest(
+                "2. TEL該当なし",
+                () -> dao.searchCustomerByTel(
+                        "00000000000"),
+                0
+        );
+
+        executeTest(
+                "3. TELスペース入り",
+                () -> dao.searchCustomerByTel(
+                        "090 1234 5678"),
+                0
+        );
+
+        executeTest(
+                "4. カナ「イトウ」",
+                () -> dao.searchCustomerByKana(
+                        "イトウ"),
+                2
+        );
+
+        executeTest(
+                "5. カナ「ワタナベ」",
+                () -> dao.searchCustomerByKana(
+                        "ワタナベ"),
+                1
+        );
+
+        executeTest(
+                "6. カナ該当なし",
+                () -> dao.searchCustomerByKana(
+                        "ソンザイシナイ"),
+                0
+        );
+
+        executeTest(
+                "7. TEL＋カナ正常",
+                () -> dao.searchCustomer(
+                        "0314142135",
+                        "ワタナベ"),
+                1
+        );
+
+        executeTest(
+                "8. TEL一致・カナ不一致",
+                () -> dao.searchCustomer(
+                        "0314142135",
+                        "イトウ"),
+                0
+        );
+
+        executeTest(
+                "9. TEL不一致",
+                () -> dao.searchCustomer(
+                        "00000000000",
+                        "ワタナベ"),
+                0
+        );
+
+        System.out.println(
+                "================================");
+
+        System.out.println(
+                "合計：" + (okCount + ngCount) + "件");
+
+        System.out.println(
+                "OK：" + okCount + "件");
+
+        System.out.println(
+                "NG：" + ngCount + "件");
+    }
+
+    private static void executeTest(
+            String testName,
+            SearchProcess process,
+            int expectedCount) {
+
+        System.out.println(
+                "================================");
+
+        System.out.println(
+                "--- " + testName + " ---");
 
         try {
 
-            CustomerSearchDBAccess dao = new CustomerSearchDBAccess();
+            ArrayList<Customer> list =
+                    process.execute();
 
-            // 1. searchCustomerByTel ("09012345678") -> 1件
-            System.out.println("--- 1. TEL検索 ---");
-            ArrayList<Customer> list1 = dao.searchCustomerByTel("09012345678");
-            printList(list1);
+            int actualCount =
+                    list == null ? 0 : list.size();
 
-            // 2. searchCustomerByKana ("イトウ") -> 2件以上
-            System.out.println("--- 2. カナ検索 ---");
-            ArrayList<Customer> list2 = dao.searchCustomerByKana("イトウ");
-            printList(list2);
+            System.out.println(
+                    "期待件数：" + expectedCount);
 
-            // 3. searchCustomer ("0314142135", "ワタナベ") -> 1件
-            System.out.println("--- 3. TEL+カナ検索 ---");
-            ArrayList<Customer> list3 = dao.searchCustomer("0314142135", "ワタナベ");
-            printList(list3);
+            System.out.println(
+                    "実際件数：" + actualCount);
 
-            // 4. searchCustomerByTel ("00000000000") -> 0件
-            System.out.println("--- 4. 該当なし検索 ---");
-            ArrayList<Customer> list4 = dao.searchCustomerByTel("00000000000");
-            printList(list4);
+            if (actualCount == expectedCount) {
+
+                System.out.println("結果：OK");
+                okCount++;
+
+            } else {
+
+                System.out.println("結果：NG");
+                ngCount++;
+            }
 
         } catch (Exception e) {
-            e.printStackTrace();
+
+            System.out.println("結果：NG");
+
+            System.out.println(
+                    "例外："
+                    + e.getClass().getName());
+
+            System.out.println(
+                    "メッセージ："
+                    + e.getMessage());
+
+            ngCount++;
         }
 
-    }
-
-    // コンソール出力用メソッド
-    private static void printList(ArrayList<Customer> list) {
-        System.out.println("件数：" + list.size());
-        for (Customer c : list) {
-            System.out.println("ID：" + c.getCustId());
-            System.out.println("氏名：" + c.getCustName());
-            System.out.println("カナ：" + c.getKana());
-            System.out.println("TEL：" + c.getTel());
-            System.out.println("住所：" + c.getAddress());
-        }
         System.out.println();
     }
 
+    @FunctionalInterface
+    private interface SearchProcess {
+
+        ArrayList<Customer> execute()
+                throws Exception;
+    }
 }

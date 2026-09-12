@@ -1,9 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-String tel = request.getAttribute("tel") == null ? "" : (String) request.getAttribute("tel");
-String kana = request.getAttribute("kana") == null ? "" : (String) request.getAttribute("kana");
+String telNo = request.getAttribute("telNo") == null
+        ? ""
+        : (String) request.getAttribute("telNo");
+String customerName = request.getAttribute("customerName") == null
+        ? ""
+        : (String) request.getAttribute("customerName");
 String errorCode = (String) request.getAttribute("errorCode");
-String[][] tableData = (String[][]) request.getAttribute("tableData");
+String[][] customerData = (String[][]) session.getAttribute("customerData");
 %>
 <!DOCTYPE html>
 <html lang="ja">
@@ -36,8 +40,8 @@ th { background:#fff7d7; }
 </style>
 <script>
 function clearFormAndResult() {
-  document.getElementById('tel').value = '';
-  document.getElementById('kana').value = '';
+  document.getElementById('telNo').value = '';
+  document.getElementById('customerName').value = '';
   var result = document.getElementById('resultArea');
   if (result) result.innerHTML = '<div class="empty">検索結果はありません。</div>';
 }
@@ -61,12 +65,12 @@ window.addEventListener('load', function() {
       <form method="post" action="KiddaLaController">
         <input type="hidden" name="command" value="CustomerSearch">
         <div class="field">
-          <label for="tel">電話番号（ハイフンなし）</label>
-          <input id="tel" name="tel" type="text" value="<%= tel %>" placeholder="例：09012345678">
+          <label for="telNo">電話番号（ハイフンなし）</label>
+          <input id="telNo" name="telNo" type="text" value="<%= telNo %>" placeholder="例：09012345678">
         </div>
         <div class="field">
-          <label for="kana">氏名カナ（全角カタカナ）</label>
-          <input id="kana" name="kana" type="text" value="<%= kana %>" placeholder="例：ヤマダタロウ">
+          <label for="customerName">氏名カナ（全角カタカナ）</label>
+          <input id="customerName" name="customerName" type="text" value="<%= customerName %>" placeholder="例：ヤマダタロウ">
         </div>
         <div class="actions">
           <button class="search" type="submit">検索</button>
@@ -80,24 +84,24 @@ window.addEventListener('load', function() {
     <div class="panel result">
       <h3>検索結果</h3>
       <div id="resultArea">
-      <% if (tableData != null && tableData.length > 0) { %>
+      <% if (customerData != null && customerData.length > 0) { %>
         <table>
           <thead>
             <tr><th>ID</th><th>氏名</th><th>カナ</th><th>住所</th></tr>
           </thead>
           <tbody>
-          <% for (int i = 0; i < tableData.length; i++) { %>
+          <% for (int i = 0; i < customerData.length; i++) { %>
             <tr>
               <td>
                 <form method="post" action="KiddaLaController" style="margin:0;">
                   <input type="hidden" name="command" value="CustomerSelect">
-                  <input type="hidden" name="custId" value="<%= tableData[i][0] %>">
-                  <button class="rowButton" type="submit"><%= tableData[i][0] %></button>
+                  <input type="hidden" name="custId" value="<%= customerData[i][0] %>">
+                  <button class="rowButton" type="submit"><%= customerData[i][0] %></button>
                 </form>
               </td>
-              <td><%= tableData[i][1] %></td>
-              <td><%= tableData[i][2] %></td>
-              <td><%= tableData[i][3] %></td>
+              <td><%= customerData[i][1] %></td>
+              <td><%= customerData[i][2] %></td>
+              <td><%= customerData[i][3] %></td>
             </tr>
           <% } %>
           </tbody>

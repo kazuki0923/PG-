@@ -37,28 +37,42 @@ public class CustomerSearchDBAccessTest {
         );
 
         executeTest(
-                "4. カナ「イトウ」",
+                "4. TEL空文字",
+                () -> dao.searchCustomerByTel(
+                        ""),
+                0
+        );
+
+        executeTest(
+                "5. TEL null",
+                () -> dao.searchCustomerByTel(
+                        null),
+                0
+        );
+
+        executeTest(
+                "6. カナ「イトウ」",
                 () -> dao.searchCustomerByKana(
                         "イトウ"),
                 2
         );
 
         executeTest(
-                "5. カナ「ワタナベ」",
+                "7. カナ「ワタナベ」",
                 () -> dao.searchCustomerByKana(
                         "ワタナベ"),
                 1
         );
 
         executeTest(
-                "6. カナ該当なし",
+                "8. カナ該当なし",
                 () -> dao.searchCustomerByKana(
                         "ソンザイシナイ"),
                 0
         );
 
         executeTest(
-                "7. TEL＋カナ正常",
+                "9. TEL＋カナ正常",
                 () -> dao.searchCustomer(
                         "0314142135",
                         "ワタナベ"),
@@ -66,7 +80,7 @@ public class CustomerSearchDBAccessTest {
         );
 
         executeTest(
-                "8. TEL一致・カナ不一致",
+                "10. TEL一致・カナ不一致",
                 () -> dao.searchCustomer(
                         "0314142135",
                         "イトウ"),
@@ -74,7 +88,7 @@ public class CustomerSearchDBAccessTest {
         );
 
         executeTest(
-                "9. TEL不一致",
+                "11. TEL不一致",
                 () -> dao.searchCustomer(
                         "00000000000",
                         "ワタナベ"),

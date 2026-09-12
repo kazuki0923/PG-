@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import action.CustomerSearchAction;
 
@@ -35,6 +36,7 @@ public class KiddaLaController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
+        HttpSession session = request.getSession();
         String command = request.getParameter("command");
         String nextPage = "/MainMenu.jsp";
 
@@ -42,18 +44,22 @@ public class KiddaLaController extends HttpServlet {
             nextPage = "/MainMenu.jsp";
 
         } else if (command.equals("CustomerSearchDisplay")) {
+            session.removeAttribute("customerData");
+            request.setAttribute("telNo", "");
+            request.setAttribute("customerName", "");
             nextPage = "/CustomerSearch.jsp";
 
         } else if (command.equals("CustomerSearch")) {
 
-            String tel = safe(request.getParameter("tel"));
-            String kana = safe(request.getParameter("kana"));
+            String telNo = safe(request.getParameter("telNo"));
+            String customerName = safe(request.getParameter("customerName"));
 
-            request.setAttribute("tel", tel);
-            request.setAttribute("kana", kana);
+            request.setAttribute("telNo", telNo);
+            request.setAttribute("customerName", customerName);
+            session.removeAttribute("customerData");
 
-            String normalizedTel = removeSpaces(tel);
-            String normalizedKana = removeSpaces(kana);
+            String normalizedTel = removeSpaces(telNo);
+            String normalizedKana = removeSpaces(customerName);
 
             if (normalizedTel.equals("") && normalizedKana.equals("")) {
                 request.setAttribute("errorCode", "011");
@@ -65,13 +71,13 @@ public class KiddaLaController extends HttpServlet {
             } else {
                 try {
                     CustomerSearchAction action = new CustomerSearchAction();
-                    String[][] tableData = action.execute(
-                            new String[] { tel, kana });
+                    String[][] customerData = action.execute(
+                            new String[] { telNo, customerName });
 
-                    if (tableData == null || tableData.length == 0) {
+                    if (customerData == null || customerData.length == 0) {
                         request.setAttribute("errorCode", "012");
                     } else {
-                        request.setAttribute("tableData", tableData);
+                        session.setAttribute("customerData", customerData);
                     }
 
                 } catch (Exception e) {

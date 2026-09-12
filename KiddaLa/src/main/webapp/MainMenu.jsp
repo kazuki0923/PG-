@@ -28,7 +28,7 @@ button { border:0; border-radius:24px; padding:13px 24px; font-size:17px; cursor
         <input type="hidden" name="command" value="CustomerSearchDisplay">
         <button class="primary" type="submit" style="width:100%;">01 注文管理</button>
       </form>
-      <button class="secondary" type="button" onclick="window.open('','_self'); window.close();">閉じる</button>
+      <button class="secondary" type="button" onclick="window.close();">閉じる</button>
     </div>
   </div>
 </div>

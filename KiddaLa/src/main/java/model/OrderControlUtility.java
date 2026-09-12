@@ -33,32 +33,28 @@ public class OrderControlUtility {
 
     /**
      * 商品情報リストを商品情報表示用データに変換する。
-     * ※Itemクラス未実装によるエラー防止のため、引数はObjectのリストとして一旦定義しています
-     * @param list 商品情報リスト
+     * @param list 商品情報リスト: ArrayList<Item>
      * @return tableData 商品情報表示用データ: String[][]
      */
-    public static String[][] itemToArray(ArrayList<?> list) {
+    public static String[][] itemToArray(ArrayList<Item> list) {
         if (list == null || list.isEmpty()) {
             return new String[0][0];
         }
-        
-        // TODO: Itemクラスの実装後に詳細な詰め替え処理を実装
-        String[][] tableData = new String[list.size()][3]; 
+
+        String[][] tableData = new String[list.size()][3];
         return tableData;
     }
 
     /**
      * 注文明細情報リストを注文明細情報表示用データに変換する。
-     * ※OrderDetailクラス未実装によるエラー防止のため、引数はObjectのリストとして一旦定義しています
-     * @param orderDetailList 注文明細情報リスト
+     * @param orderDetailList 注文明細情報リスト: ArrayList<OrderDetail>
      * @return tableData 注文明細情報表示用データ: String[][]
      */
-    public static String[][] orderToArray(ArrayList<?> orderDetailList) {
+    public static String[][] orderToArray(ArrayList<OrderDetail> orderDetailList) {
         if (orderDetailList == null || orderDetailList.isEmpty()) {
             return new String[0][0];
         }
 
-        // TODO: OrderDetailクラスの実装後に詳細な詰め替え処理を実装
         String[][] tableData = new String[orderDetailList.size()][4];
         return tableData;
     }

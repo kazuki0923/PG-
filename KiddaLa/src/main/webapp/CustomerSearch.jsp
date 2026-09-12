@@ -72,7 +72,7 @@ window.addEventListener('load', function() {
           <button class="search" type="submit">検索</button>
           <button class="gray" type="button" onclick="clearFormAndResult();">入力消去</button>
           <button class="gray" type="button" onclick="location.href='KiddaLaController';">戻る</button>
-          <button class="close" type="button" onclick="window.open('','_self'); window.close();">閉じる</button>
+          <button class="close" type="button" onclick="window.close();">閉じる</button>
         </div>
       </form>
     </div>

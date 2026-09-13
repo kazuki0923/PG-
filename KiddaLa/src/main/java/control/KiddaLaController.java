@@ -45,21 +45,21 @@ public class KiddaLaController extends HttpServlet {
 
         } else if (command.equals("CustomerSearchDisplay")) {
             session.removeAttribute("customerData");
-            request.setAttribute("telNo", "");
-            request.setAttribute("customerName", "");
+            request.setAttribute("tel", "");
+            request.setAttribute("kana", "");
             nextPage = "/CustomerSearch.jsp";
 
         } else if (command.equals("CustomerSearch")) {
 
-            String telNo = safe(request.getParameter("telNo"));
-            String customerName = safe(request.getParameter("customerName"));
+            String tel = safe(request.getParameter("tel"));
+            String kana = safe(request.getParameter("kana"));
 
-            request.setAttribute("telNo", telNo);
-            request.setAttribute("customerName", customerName);
+            request.setAttribute("tel", tel);
+            request.setAttribute("kana", kana);
             session.removeAttribute("customerData");
 
-            String normalizedTel = removeSpaces(telNo);
-            String normalizedKana = removeSpaces(customerName);
+            String normalizedTel = removeSpaces(tel);
+            String normalizedKana = removeSpaces(kana);
 
             if (normalizedTel.equals("") && normalizedKana.equals("")) {
                 request.setAttribute("errorCode", "011");
@@ -72,7 +72,7 @@ public class KiddaLaController extends HttpServlet {
                 try {
                     CustomerSearchAction action = new CustomerSearchAction();
                     String[][] customerData = action.execute(
-                            new String[] { telNo, customerName });
+                            new String[] { tel, kana });
 
                     if (customerData == null || customerData.length == 0) {
                         request.setAttribute("errorCode", "012");

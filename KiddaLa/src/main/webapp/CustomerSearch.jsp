@@ -1,11 +1,11 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-String telNo = request.getAttribute("telNo") == null
+String tel = request.getAttribute("tel") == null
         ? ""
-        : (String) request.getAttribute("telNo");
-String customerName = request.getAttribute("customerName") == null
+        : (String) request.getAttribute("tel");
+String kana = request.getAttribute("kana") == null
         ? ""
-        : (String) request.getAttribute("customerName");
+        : (String) request.getAttribute("kana");
 String errorCode = (String) request.getAttribute("errorCode");
 String[][] customerData = (String[][]) session.getAttribute("customerData");
 %>
@@ -40,8 +40,8 @@ th { background:#fff7d7; }
 </style>
 <script>
 function clearFormAndResult() {
-  document.getElementById('telNo').value = '';
-  document.getElementById('customerName').value = '';
+  document.getElementById('tel').value = '';
+  document.getElementById('kana').value = '';
   var result = document.getElementById('resultArea');
   if (result) result.innerHTML = '<div class="empty">検索結果はありません。</div>';
 }
@@ -65,12 +65,12 @@ window.addEventListener('load', function() {
       <form method="post" action="KiddaLaController">
         <input type="hidden" name="command" value="CustomerSearch">
         <div class="field">
-          <label for="telNo">電話番号（ハイフンなし）</label>
-          <input id="telNo" name="telNo" type="text" value="<%= telNo %>" placeholder="例：09012345678">
+          <label for="tel">電話番号（ハイフンなし）</label>
+          <input id="tel" name="tel" type="text" value="<%= tel %>" placeholder="例：09012345678">
         </div>
         <div class="field">
-          <label for="customerName">氏名カナ（全角カタカナ）</label>
-          <input id="customerName" name="customerName" type="text" value="<%= customerName %>" placeholder="例：ヤマダタロウ">
+          <label for="kana">氏名カナ（全角カタカナ）</label>
+          <input id="kana" name="kana" type="text" value="<%= kana %>" placeholder="例：ヤマダタロウ">
         </div>
         <div class="actions">
           <button class="search" type="submit">検索</button>

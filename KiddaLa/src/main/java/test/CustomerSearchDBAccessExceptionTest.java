@@ -14,7 +14,7 @@ public class CustomerSearchDBAccessExceptionTest {
         System.out.println("=== DB接続エラーテスト ===");
         System.out.println("※DBを停止した状態で実行する。");
 
-        executeTest("3. searchCustomerByTel DB接続異常",
+        executeTest("6. searchCustomerByTel DB接続異常",
                 () -> dao.searchCustomerByTel("09012345678"));
 
         executeTest("12. searchCustomerByKana DB接続異常",

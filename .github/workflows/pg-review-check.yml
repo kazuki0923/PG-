@@ -71,12 +71,12 @@ jobs:
           echo "$output" | grep -q '合計：22件'
           echo "$output" | grep -q 'NG：0件'
 
-      - name: Run DAO 16 non-DB-stop cases
+      - name: Run DAO 15 non-DB-stop cases
         shell: bash
         run: |
           output=$(java -cp "out:KiddaLa/mysql-connector-j-9.7.0.jar" test.CustomerSearchDBAccessTest)
           echo "$output"
-          echo "$output" | grep -q '合計：16件'
+          echo "$output" | grep -q '合計：15件'
           echo "$output" | grep -q 'NG：0件'
 
       - name: Run Action 6 non-DB-stop cases

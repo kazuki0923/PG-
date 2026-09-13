@@ -1,0 +1,131 @@
+name: PG review check
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  normal-tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: rootpass
+          MYSQL_DATABASE: KIDDA_LA
+          MYSQL_USER: user1
+          MYSQL_PASSWORD: pass1
+        ports:
+          - 65534:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -prootpass"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Seed CUSTOMER table
+        shell: bash
+        run: |
+          cat <<'SQL' | docker exec -i ${{ job.services.mysql.id }} mysql -uroot -prootpass KIDDA_LA
+          CREATE TABLE CUSTOMER (
+            CUSTID INT PRIMARY KEY,
+            CUSTNAME VARCHAR(100),
+            KANA VARCHAR(100),
+            TEL VARCHAR(30),
+            ADDRESS VARCHAR(255)
+          );
+          INSERT INTO CUSTOMER (CUSTID, CUSTNAME, KANA, TEL, ADDRESS) VALUES
+            (1, '青木まゆみ', 'アオキマユミ', '09012345678', '東京都千代田区神田小川町1-1-1'),
+            (2, '伊藤華英', 'イトウハナエ', '09022222222', '東京都千代田区神田小川町2-1-1'),
+            (12, '伊藤英恵', 'イトウハナエ', '09012121212', '東京都千代田区神田小川町1-4-1'),
+            (15, '渡部香生子', 'ワタナベカナコ', '0314142135', '東京都千代田区神田神保町1-1-1'),
+            (16, '瀬戸大也', 'セトダイヤ', '0314142135', '東京都千代田区神田神保町1-1-1'),
+            (17, '池江璃花子', 'イケエリカコ', '0314142135', '東京都千代田区神田神保町1-1-1');
+          SQL
+
+      - name: Compile tests
+        shell: bash
+        run: |
+          mkdir -p out
+          javac -encoding UTF-8 -cp "KiddaLa/mysql-connector-j-9.7.0.jar" -d out \
+            KiddaLa/src/main/java/model/Customer.java \
+            KiddaLa/src/main/java/model/Item.java \
+            KiddaLa/src/main/java/model/OrderDetail.java \
+            KiddaLa/src/main/java/model/OrderControlUtility.java \
+            KiddaLa/src/main/java/dao/CustomerSearchDBAccess.java \
+            KiddaLa/src/main/java/action/CustomerSearchAction.java \
+            KiddaLa/src/main/java/test/CustomerTest.java \
+            KiddaLa/src/main/java/test/CustomerSearchDBAccessTest.java \
+            KiddaLa/src/main/java/test/CustomerSearchActionTest.java \
+            KiddaLa/src/main/java/test/CustomerSearchIntegrationTest.java
+
+      - name: Run Customer 22 cases
+        shell: bash
+        run: |
+          output=$(java -cp "out:KiddaLa/mysql-connector-j-9.7.0.jar" test.CustomerTest)
+          echo "$output"
+          echo "$output" | grep -q '合計：22件'
+          echo "$output" | grep -q 'NG：0件'
+
+      - name: Run DAO 15 non-DB-stop cases
+        shell: bash
+        run: |
+          output=$(java -cp "out:KiddaLa/mysql-connector-j-9.7.0.jar" test.CustomerSearchDBAccessTest)
+          echo "$output"
+          echo "$output" | grep -q '合計：15件'
+          echo "$output" | grep -q 'NG：0件'
+
+      - name: Run Action 6 non-DB-stop cases
+        shell: bash
+        run: |
+          output=$(java -cp "out:KiddaLa/mysql-connector-j-9.7.0.jar" test.CustomerSearchActionTest)
+          echo "$output"
+          echo "$output" | grep -q '合計：6件'
+          echo "$output" | grep -q 'NG：0件'
+
+      - name: Run integration 19 cases
+        shell: bash
+        run: |
+          output=$(java -cp "out:KiddaLa/mysql-connector-j-9.7.0.jar" test.CustomerSearchIntegrationTest)
+          echo "$output"
+          echo "$output" | grep -q '合計：19件'
+          echo "$output" | grep -q 'NG：0件'
+
+  db-stop-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile DB-stop tests
+        shell: bash
+        run: |
+          mkdir -p out
+          javac -encoding UTF-8 -cp "KiddaLa/mysql-connector-j-9.7.0.jar" -d out \
+            KiddaLa/src/main/java/model/Customer.java \
+            KiddaLa/src/main/java/model/Item.java \
+            KiddaLa/src/main/java/model/OrderDetail.java \
+            KiddaLa/src/main/java/model/OrderControlUtility.java \
+            KiddaLa/src/main/java/dao/CustomerSearchDBAccess.java \
+            KiddaLa/src/main/java/action/CustomerSearchAction.java \
+            KiddaLa/src/main/java/test/CustomerSearchDBAccessExceptionTest.java \
+            KiddaLa/src/main/java/test/CustomerSearchActionExceptionTest.java
+
+      - name: Run DAO DB-stop 3 cases
+        shell: bash
+        run: |
+          output=$(java -cp "out:KiddaLa/mysql-connector-j-9.7.0.jar" test.CustomerSearchDBAccessExceptionTest)
+          echo "$output"
+          echo "$output" | grep -q '合計：3件'
+          echo "$output" | grep -q 'NG：0件'
+
+      - name: Run Action DB-stop 1 case
+        shell: bash
+        run: |
+          output=$(java -cp "out:KiddaLa/mysql-connector-j-9.7.0.jar" test.CustomerSearchActionExceptionTest)
+          echo "$output"
+          echo "$output" | grep -q '結果：OK'
+          ! echo "$output" | grep -q '結果：NG'

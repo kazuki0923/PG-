@@ -14,23 +14,20 @@ public class CustomerSearchDBAccessTest {
 
         CustomerSearchDBAccess dao = new CustomerSearchDBAccess();
 
-        // 教材の単体テスト仕様書18項目のうち、DB停止を伴わない15項目と、レビュー例で指摘対象のnull確認を実施する。
+        // 正式な単体テスト仕様書18項目のうち、DB停止を伴わない15項目を実施する。
         executeTest("1. TEL正常 09012345678",
                 () -> dao.searchCustomerByTel("09012345678"), 1);
 
         executeTest("2. TEL該当なし 00000000000",
                 () -> dao.searchCustomerByTel("00000000000"), 0);
 
-        executeTest("4. TEL複数件 0314142135",
+        executeTest("3. TEL複数件 0314142135",
                 () -> dao.searchCustomerByTel("0314142135"), 3);
 
-        executeTest("5. TEL空文字",
+        executeTest("4. TEL空文字",
                 () -> dao.searchCustomerByTel(""), 0);
 
-        executeTest("6. TELスペース入り",
-                () -> dao.searchCustomerByTel("090 1234 5678"), 0);
-
-        executeTest("追加. TEL null（レビュー指摘対策）",
+        executeTest("5. TEL null",
                 () -> dao.searchCustomerByTel(null), 0);
 
         executeTest("7. カナ イトウ",
@@ -67,7 +64,7 @@ public class CustomerSearchDBAccessTest {
         System.out.println("通常系・該当なし 合計：" + (okCount + ngCount) + "件");
         System.out.println("OK：" + okCount + "件");
         System.out.println("NG：" + ngCount + "件");
-        System.out.println("※項番3・12・18は CustomerSearchDBAccessExceptionTest でDB停止状態にして実施する。");
+        System.out.println("※項番6・12・18は CustomerSearchDBAccessExceptionTest でDB停止状態にして実施する。");
     }
 
     private static void executeTest(

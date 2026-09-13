@@ -14,7 +14,7 @@ public class CustomerSearchDBAccessTest {
 
         CustomerSearchDBAccess dao = new CustomerSearchDBAccess();
 
-        // 教材の単体テスト仕様書 18項目のうち、DB停止を伴わない15項目を実施する。
+        // 教材の単体テスト仕様書18項目のうち、DB停止を伴わない15項目と、レビュー例で指摘対象のnull確認を実施する。
         executeTest("1. TEL正常 09012345678",
                 () -> dao.searchCustomerByTel("09012345678"), 1);
 
@@ -29,6 +29,9 @@ public class CustomerSearchDBAccessTest {
 
         executeTest("6. TELスペース入り",
                 () -> dao.searchCustomerByTel("090 1234 5678"), 0);
+
+        executeTest("追加. TEL null（レビュー指摘対策）",
+                () -> dao.searchCustomerByTel(null), 0);
 
         executeTest("7. カナ イトウ",
                 () -> dao.searchCustomerByKana("イトウ"), 2);

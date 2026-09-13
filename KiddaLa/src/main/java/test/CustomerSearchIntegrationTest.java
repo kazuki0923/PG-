@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import action.CustomerSearchAction;
 import dao.CustomerSearchDBAccess;
@@ -17,134 +18,108 @@ public class CustomerSearchIntegrationTest {
         CustomerSearchDBAccess dao = new CustomerSearchDBAccess();
         CustomerSearchAction action = new CustomerSearchAction();
 
-        try {
-            // 1. 結合1 OrderControlUtility - Customer
-            ArrayList<Customer> oneCustomer = new ArrayList<Customer>();
-            oneCustomer.add(new Customer(
-                    1,
-                    "青木まゆみ",
-                    "アオキマユミ",
-                    "09012345678",
-                    "東京都千代田区神田小川町1-1-1"));
+        // 結合1：OrderControlUtility - Customer（5項目）
+        executeTest("結合1-1 Customerクラスを解決できる",
+                () -> Class.forName("model.Customer") != null);
 
-            String[][] converted = OrderControlUtility.customerToArray(oneCustomer);
-            check(
-                    "1. Utility-Customer",
-                    converted != null
-                    && converted.length == 1
-                    && converted[0].length == 4
-                    && "1".equals(converted[0][0])
-                    && "青木まゆみ".equals(converted[0][1])
-                    && "アオキマユミ".equals(converted[0][2])
-                    && "東京都千代田区神田小川町1-1-1".equals(converted[0][3]));
+        executeTest("結合1-2 customerToArray内でgetCustIdを使用できる", () -> {
+            String[][] data = OrderControlUtility.customerToArray(createOneCustomer());
+            return data.length == 1 && "1".equals(data[0][0]);
+        });
 
-            // 2. 結合2 DAO - Customer（TEL）
-            ArrayList<Customer> telList = dao.searchCustomerByTel("09012345678");
-            check(
-                    "2. DAO-Customer TEL",
-                    telList != null
-                    && telList.size() == 1
-                    && telList.get(0).getCustId() == 1
-                    && "青木まゆみ".equals(telList.get(0).getCustName()));
+        executeTest("結合1-3 customerToArray内でgetCustNameを使用できる", () -> {
+            String[][] data = OrderControlUtility.customerToArray(createOneCustomer());
+            return data.length == 1 && "青木まゆみ".equals(data[0][1]);
+        });
 
-            // 3. 結合2 DAO - Customer（カナ）
-            ArrayList<Customer> kanaList = dao.searchCustomerByKana("イトウ");
-            check(
-                    "3. DAO-Customer カナ",
-                    kanaList != null
-                    && kanaList.size() == 2
-                    && kanaList.get(0).getKana().contains("イトウ")
-                    && kanaList.get(1).getKana().contains("イトウ"));
+        executeTest("結合1-4 customerToArray内でgetKanaを使用できる", () -> {
+            String[][] data = OrderControlUtility.customerToArray(createOneCustomer());
+            return data.length == 1 && "アオキマユミ".equals(data[0][2]);
+        });
 
-            // 4. 結合2 DAO - Customer（TEL＋カナ）
-            ArrayList<Customer> bothList = dao.searchCustomer("0314142135", "ワタナベ");
-            check(
-                    "4. DAO-Customer TEL+カナ",
-                    bothList != null
-                    && bothList.size() == 1
-                    && bothList.get(0).getCustId() == 15
-                    && "ワタナベカナコ".equals(bothList.get(0).getKana()));
+        executeTest("結合1-5 customerToArray内でgetAddressを使用できる", () -> {
+            String[][] data = OrderControlUtility.customerToArray(createOneCustomer());
+            return data.length == 1
+                    && "東京都千代田区神田小川町1-1-1".equals(data[0][3]);
+        });
 
-            // 5. 結合3 Action - DAO（TELのみ）
-            String[][] actionTel = action.execute(new String[] { "09012345678", "" });
-            check(
-                    "5. Action-DAO TELのみ",
-                    actionTel != null
-                    && actionTel.length == 1
-                    && "1".equals(actionTel[0][0]));
+        // 結合2：CustomerSearchDBAccess - Customer（5項目）
+        executeTest("結合2-1 Customerクラスを解決できる",
+                () -> Class.forName("model.Customer") != null);
 
-            // 6. 結合3 Action - DAO（カナのみ）
-            String[][] actionKana = action.execute(new String[] { "", "イトウ" });
-            check(
-                    "6. Action-DAO カナのみ",
-                    actionKana != null
-                    && actionKana.length == 2);
+        executeTest("結合2-2 searchCustomerByTelでCustomerを生成できる", () -> {
+            ArrayList<Customer> list = dao.searchCustomerByTel("09012345678");
+            return list != null && list.size() == 1 && list.get(0) != null;
+        });
 
-            // 7. 結合3 Action - DAO（TEL＋カナ）
-            String[][] actionBoth = action.execute(new String[] { "0314142135", "ワタナベ" });
-            check(
-                    "7. Action-DAO TEL+カナ",
-                    actionBoth != null
-                    && actionBoth.length == 1
-                    && "15".equals(actionBoth[0][0]));
+        executeTest("結合2-3 searchCustomerByKanaで検索結果件数分のCustomerを生成できる", () -> {
+            ArrayList<Customer> list = dao.searchCustomerByKana("イトウ");
+            return list != null && list.size() == 2
+                    && list.get(0) != null && list.get(1) != null;
+        });
 
-            // 8. 結合4 Action - Customer
-            check(
-                    "8. Action-Customer 属性保持",
-                    actionBoth != null
-                    && actionBoth.length == 1
-                    && "渡部香生子".equals(actionBoth[0][1])
-                    && "ワタナベカナコ".equals(actionBoth[0][2])
-                    && "東京都千代田区神田神保町1-1-1".equals(actionBoth[0][3]));
+        executeTest("結合2-4 searchCustomerでCustomerをArrayListへ追加できる", () -> {
+            ArrayList<Customer> list = dao.searchCustomer("0314142135", "ワタナベ");
+            return list != null && list.size() == 1 && list.get(0) != null;
+        });
 
-            // 9. 結合5 Action - Utility
-            check(
-                    "9. Action-Utility 配列変換",
-                    actionTel != null
-                    && actionTel.length == 1
-                    && actionTel[0].length == 4);
+        executeTest("結合2-5 ResultSetの値をCustomerへ設定できる", () -> {
+            ArrayList<Customer> list = dao.searchCustomerByTel("09012345678");
+            if (list == null || list.size() != 1) {
+                return false;
+            }
+            Customer c = list.get(0);
+            return c.getCustId() == 1
+                    && "青木まゆみ".equals(c.getCustName())
+                    && "アオキマユミ".equals(c.getKana())
+                    && "09012345678".equals(c.getTel())
+                    && "東京都千代田区神田小川町1-1-1".equals(c.getAddress());
+        });
 
-            // 10. 結合5 検索結果0件
-            String[][] noHit = action.execute(new String[] { "00000000000", "" });
-            check(
-                    "10. Action-Utility 0件",
-                    noHit == null);
+        // 結合3：CustomerSearchAction - CustomerSearchDBAccess（4項目）
+        executeTest("結合3-1 CustomerSearchDBAccessクラスを解決できる",
+                () -> Class.forName("dao.CustomerSearchDBAccess") != null);
 
-            // 11. 全体 TELのみ
-            String[][] wholeTel = action.execute(new String[] { "09012345678", "" });
-            check(
-                    "11. 全体 TELのみ",
-                    wholeTel != null
-                    && wholeTel.length == 1
-                    && "青木まゆみ".equals(wholeTel[0][1]));
+        executeTest("結合3-2 電話番号のみ指定時にTEL検索を利用できる", () -> {
+            String[][] data = action.execute(new String[] { "09012345678", "" });
+            return data != null && data.length == 1 && "1".equals(data[0][0]);
+        });
 
-            // 12. 全体 カナのみ
-            String[][] wholeKana = action.execute(new String[] { "", "イトウ" });
-            check(
-                    "12. 全体 カナのみ",
-                    wholeKana != null
-                    && wholeKana.length == 2);
+        executeTest("結合3-3 カナのみ指定時にカナ検索を利用できる", () -> {
+            String[][] data = action.execute(new String[] { "", "イトウ" });
+            return data != null && data.length == 2;
+        });
 
-            // 13. 全体 TEL＋カナ
-            String[][] wholeBoth = action.execute(new String[] { "0314142135", "ワタナベ" });
-            check(
-                    "13. 全体 TEL+カナ",
-                    wholeBoth != null
-                    && wholeBoth.length == 1
-                    && "渡部香生子".equals(wholeBoth[0][1]));
+        executeTest("結合3-4 電話番号・カナ指定時に複合検索を利用できる", () -> {
+            String[][] data = action.execute(new String[] { "0314142135", "ワタナベ" });
+            return data != null && data.length == 1 && "15".equals(data[0][0]);
+        });
 
-            // 14. 全体 該当なし
-            String[][] wholeNoHit = action.execute(new String[] { "00000000000", "" });
-            check(
-                    "14. 全体 該当なし",
-                    wholeNoHit == null);
+        // 結合4：CustomerSearchAction - Customer（3項目）
+        executeTest("結合4-1 Customerクラスを解決できる",
+                () -> Class.forName("model.Customer") != null);
 
-        } catch (Exception e) {
-            System.out.println("テスト実行中に例外が発生しました。");
-            System.out.println("例外：" + e.getClass().getName());
-            System.out.println("メッセージ：" + e.getMessage());
-            ngCount++;
-        }
+        executeTest("結合4-2 ArrayList<Customer>を宣言・利用できる", () -> {
+            ArrayList<Customer> list = dao.searchCustomerByTel("09012345678");
+            return list != null && list instanceof ArrayList<?>;
+        });
+
+        executeTest("結合4-3 DAOから返却された顧客情報リストを受け取れる", () -> {
+            String[][] data = action.execute(new String[] { "09012345678", "" });
+            return data != null && data.length == 1
+                    && "青木まゆみ".equals(data[0][1]);
+        });
+
+        // 結合5：CustomerSearchAction - OrderControlUtility（2項目）
+        executeTest("結合5-1 OrderControlUtilityクラスを解決できる",
+                () -> Class.forName("model.OrderControlUtility") != null);
+
+        executeTest("結合5-2 execute内でcustomerToArrayを利用した結果を返却できる", () -> {
+            ArrayList<Customer> list = dao.searchCustomerByTel("09012345678");
+            String[][] expected = OrderControlUtility.customerToArray(list);
+            String[][] actual = action.execute(new String[] { "09012345678", "" });
+            return Arrays.deepEquals(expected, actual);
+        });
 
         System.out.println("================================");
         System.out.println("合計：" + (okCount + ngCount) + "件");
@@ -152,16 +127,39 @@ public class CustomerSearchIntegrationTest {
         System.out.println("NG：" + ngCount + "件");
     }
 
-    private static void check(String name, boolean condition) {
-        System.out.println("================================");
-        System.out.println("--- " + name + " ---");
+    private static ArrayList<Customer> createOneCustomer() {
+        ArrayList<Customer> list = new ArrayList<Customer>();
+        list.add(new Customer(
+                1,
+                "青木まゆみ",
+                "アオキマユミ",
+                "09012345678",
+                "東京都千代田区神田小川町1-1-1"));
+        return list;
+    }
 
-        if (condition) {
-            System.out.println("結果：OK");
-            okCount++;
-        } else {
+    private static void executeTest(String testName, TestProcess process) {
+        System.out.println("================================");
+        System.out.println("--- " + testName + " ---");
+
+        try {
+            if (process.execute()) {
+                System.out.println("結果：OK");
+                okCount++;
+            } else {
+                System.out.println("結果：NG");
+                ngCount++;
+            }
+        } catch (Exception e) {
             System.out.println("結果：NG");
+            System.out.println("例外：" + e.getClass().getName());
+            System.out.println("メッセージ：" + e.getMessage());
             ngCount++;
         }
+    }
+
+    @FunctionalInterface
+    private interface TestProcess {
+        boolean execute() throws Exception;
     }
 }

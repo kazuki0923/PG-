@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class Customer implements Serializable {
     
     // 5つのprivate属性
-    private String custId;     // 顧客ID
+    private int custId;        // 顧客ID
     private String custName;   // 顧客名
     private String kana;       // カナ
     private String tel;        // 電話番号
@@ -19,7 +19,7 @@ public class Customer implements Serializable {
     }
 
     // 引数ありコンストラクタ
-    public Customer(String custId, String custName, String kana, String tel, String address) {
+    public Customer(int custId, String custName, String kana, String tel, String address) {
         this.custId = custId;
         this.custName = custName;
         this.kana = kana;
@@ -28,11 +28,11 @@ public class Customer implements Serializable {
     }
 
     // getter/setterメソッド（10個）
-    public String getCustId() {
+    public int getCustId() {
         return custId;
     }
 
-    public void setCustId(String custId) {
+    public void setCustId(int custId) {
         this.custId = custId;
     }
 
@@ -41,7 +41,7 @@ public class Customer implements Serializable {
     }
 
     public void setCustName(String custName) {
-        this.custId = custName;
+        this.custName = custName;
     }
 
     public String getKana() {

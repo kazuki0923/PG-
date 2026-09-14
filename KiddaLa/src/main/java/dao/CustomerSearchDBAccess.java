@@ -15,9 +15,9 @@ import model.Customer;
 public class CustomerSearchDBAccess {
 
     // DB接続情報の定数定義
-    private static final String URL = "jdbc:mysql://localhost:3306/KIDDA_LA";
-    private static final String USER = "root";
-    private static final String PASS = "kazuki48";
+    private static final String URL = "jdbc:mysql://localhost:65534/KIDDA_LA";
+    private static final String USER = "user1";
+    private static final String PASS = "pass1";
 
     /**
      * KIDDA_LAデータベースとの接続を確立する。
@@ -49,17 +49,17 @@ public class CustomerSearchDBAccess {
 
         try {
             con = createConnection();
-            String sql = "SELECT CUSTID, CUSTNAME, KANA, TEL, ADDRESS FROM CUSTOMER WHERE TEL = ?";
+            String sql = "SELECT CUSTID, CUSTNAME, KANA, ADDRESS FROM CUSTOMER WHERE TEL = ?";
             ps = con.prepareStatement(sql);
             ps.setString(1, tel);
             rs = ps.executeQuery();
 
             while (rs.next()) {
                 Customer customer = new Customer(
-                    rs.getString("CUSTID"),
+                    rs.getInt("CUSTID"),
                     rs.getString("CUSTNAME"),
                     rs.getString("KANA"),
-                    rs.getString("TEL"),
+                    tel,
                     rs.getString("ADDRESS")
                 );
                 list.add(customer);
@@ -86,13 +86,12 @@ public class CustomerSearchDBAccess {
             con = createConnection();
             String sql = "SELECT CUSTID, CUSTNAME, KANA, TEL, ADDRESS FROM CUSTOMER WHERE KANA LIKE ?";
             ps = con.prepareStatement(sql);
-            // 部分一致（含む）にするため「%」で囲む
             ps.setString(1, "%" + kana + "%");
             rs = ps.executeQuery();
 
             while (rs.next()) {
                 Customer customer = new Customer(
-                    rs.getString("CUSTID"),
+                    rs.getInt("CUSTID"),
                     rs.getString("CUSTNAME"),
                     rs.getString("KANA"),
                     rs.getString("TEL"),
@@ -120,19 +119,18 @@ public class CustomerSearchDBAccess {
 
         try {
             con = createConnection();
-            String sql = "SELECT CUSTID, CUSTNAME, KANA, TEL, ADDRESS FROM CUSTOMER WHERE TEL = ? AND KANA LIKE ?";
+            String sql = "SELECT CUSTID, CUSTNAME, KANA, ADDRESS FROM CUSTOMER WHERE TEL = ? AND KANA LIKE ?";
             ps = con.prepareStatement(sql);
             ps.setString(1, tel);
-            // 部分一致（含む）にするため「%」で囲む
             ps.setString(2, "%" + kana + "%");
             rs = ps.executeQuery();
 
             while (rs.next()) {
                 Customer customer = new Customer(
-                    rs.getString("CUSTID"),
+                    rs.getInt("CUSTID"),
                     rs.getString("CUSTNAME"),
                     rs.getString("KANA"),
-                    rs.getString("TEL"),
+                    tel,
                     rs.getString("ADDRESS")
                 );
                 list.add(customer);

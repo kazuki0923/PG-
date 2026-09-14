@@ -7,10 +7,9 @@ import java.sql.Statement;
 
 public class DbTest {
     public static void main(String[] args) {
-        // 本番用DB「KIDDA_LA」への接続情報
-        String url = "jdbc:mysql://localhost:3306/KIDDA_LA";
-        String user = "root";
-        String password = "kazuki48"; // 一輝さんのパスワード
+        String url = "jdbc:mysql://localhost:65534/KIDDA_LA";
+        String user = "user1";
+        String password = "pass1";
 
         try {
             // 1. データベースに接続
